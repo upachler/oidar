@@ -1,0 +1,9 @@
+[package]
+name = "oidar"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.94"
+easy-repl = "0.2.1"
+url = "2.5.4"
