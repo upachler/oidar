@@ -17,7 +17,7 @@ pub enum BackendEvent {
 }
 
 pub trait Backend {
-    fn send_command(&self, cmd: BackendCommand);
+    fn send_command(&self, cmd: BackendCommand) -> Result<()>;
     fn event_receiver(&self) -> &Receiver<BackendEvent>;
 }
 

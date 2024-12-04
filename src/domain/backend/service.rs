@@ -1,5 +1,6 @@
 use super::ports::*;
 use std::{sync::mpsc::*, thread::JoinHandle};
+use anyhow::Result;
 
 
 struct BackendCoreStub {
@@ -37,7 +38,7 @@ where
 
 impl Drop for BackendCoreStub {
     fn drop(&mut self) {
-        self.command_sender.send(BackendCommand::Shutdown);
+        let _ = self.command_sender.send(BackendCommand::Shutdown);
     }
 }
 
@@ -45,8 +46,8 @@ impl Backend for BackendCoreStub {
     fn event_receiver(&self) -> &Receiver<BackendEvent> {
         &self.event_receiver
     }
-    fn send_command(&self, cmd: BackendCommand) {
-        self.command_sender.send(cmd);
+    fn send_command(&self, cmd: BackendCommand) -> Result<()> {
+        Ok(self.command_sender.send(cmd)?)
     }
 }
 

@@ -22,7 +22,7 @@ impl Frontend for EasyReplFrontend {
             "play URL",
             (url: String) => |url: String| {
                 match Url::parse(&url) {
-                    Ok(url) => backend_clone.send_command(BackendCommand::PlayUrl(url)),
+                    Ok(url) => backend_clone.send_command(BackendCommand::PlayUrl(url)).unwrap(),
                     Err(e) => eprint!("invalid url '{url}' provided, error: {e}"),
                 };
                 Ok(CommandStatus::Done)
