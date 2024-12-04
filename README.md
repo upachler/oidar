@@ -12,6 +12,8 @@ basis for MP3 internet radio player
 
 ## Architecture
 
+Oidar tries to use principles from the article [Master hexagonal architecture in Rust](https://www.howtocodeit.com/articles/master-hexagonal-architecture-rust) where applicable.
+
 The design uses a
 * Frontend: may be a GUI, a command line interface, software reading from hardware buttons, etc.
 * Backend: The actual player
