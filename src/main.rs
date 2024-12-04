@@ -1,11 +1,12 @@
-use backend::Backend;
-use frontend::Frontend;
+
 use url::Url;
+use domain::backend::ports::*;
+use domain::frontend::ports::*;
 
-mod frontend;
-mod backend;
-
+mod domain;
 mod dummy;
+
+mod easy_repl;
 
 fn main() {
 
@@ -18,11 +19,11 @@ fn main() {
     let decoder = dummy::DummyDecoder::new();
     let player = dummy::DummyPlayer::new();
 
-    let backend = backend::new(loader, decoder, player);
+    let backend = domain::backend::service::new(loader, decoder, player);
 
-    backend.send_command(backend::BackendCommand::PlayUrl(fm4_url));
+    backend.send_command(BackendCommand::PlayUrl(fm4_url));
     
-    let frontend = frontend::easy_repl::EasyReplFrontend::new();
+    let frontend = easy_repl::EasyReplFrontend::new();
 
     frontend.run(backend);
 }

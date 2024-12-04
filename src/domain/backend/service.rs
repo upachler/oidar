@@ -1,31 +1,6 @@
-use decoder::Decoder;
-use player::Player;
-use url::Url;
+use super::ports::*;
 use std::{sync::mpsc::*, thread::JoinHandle};
 
-use loader::Loader;
-
-pub mod domain;
-pub mod loader;
-pub mod decoder;
-pub mod player;
-
-
-pub enum BackendCommand {
-    PlayUrl(Url),
-    StopPlayback,
-    Shutdown,
-}
-
-pub enum BackendEvent {
-    PlaybackStarted,
-    PlaybackStopped,
-}
-
-pub trait Backend {
-    fn send_command(&self, cmd: BackendCommand);
-    fn event_receiver(&self) -> &Receiver<BackendEvent>;
-}
 
 struct BackendCoreStub {
     command_sender: SyncSender<BackendCommand>,

@@ -1,4 +1,5 @@
-use crate::backend::{domain::*, loader::Loader, decoder::*, player::*};
+use crate::domain::backend::ports::{Loader, Decoder, DecoderState, Player};
+use crate::domain::backend::models::*;
 
 pub struct DummyLoader;
 
@@ -9,7 +10,7 @@ impl DummyLoader {
 }
 
 impl Loader for DummyLoader {
-    fn read_chunk() -> anyhow::Result<crate::backend::domain::Chunk> {
+    fn read_chunk() -> anyhow::Result<Chunk> {
         let data = [0u8; 32];
         Ok(Chunk::from(&data as &[u8]))
     }

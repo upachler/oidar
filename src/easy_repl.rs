@@ -1,8 +1,8 @@
 use easy_repl::{command, Repl, CommandStatus};
 use std::rc::Rc;
-use crate::backend::*;
+use crate::domain::backend::ports::*;
 use url::Url;
-use super::Frontend;
+use crate::domain::frontend::ports::Frontend;
 
 pub struct EasyReplFrontend {
 }
