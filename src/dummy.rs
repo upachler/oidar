@@ -10,7 +10,10 @@ impl DummyLoader {
 }
 
 impl Loader for DummyLoader {
-    fn read_chunk() -> anyhow::Result<Chunk> {
+    fn set_url(&mut self, url: url::Url) {
+        // do nothing
+    }
+    fn read_chunk(&self) -> anyhow::Result<Chunk> {
         let data = [0u8; 32];
         Ok(Chunk::from(&data as &[u8]))
     }
@@ -58,6 +61,6 @@ impl DummyPlayer {
 }
 
 impl Player for DummyPlayer {
-    fn play(_frame: Frame) {        
+    fn play(&self, _frame: Frame) {        
     }
 }

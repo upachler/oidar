@@ -23,8 +23,13 @@ pub trait Backend {
 
 pub trait Loader {
 
+    // set the url where th load the stream from. If changed,
+    // the next call to [read_chunk()] will load from that
+    // new url, starting from the beginning.
+    fn set_url(&mut self, url: Url);
+
     /** Reads a chunk and blocks until it is available */
-    fn read_chunk() -> Result<Chunk>;
+    fn read_chunk(&self) -> Result<Chunk>;
 }
 
 use crate::domain::backend::models::Frame;
@@ -35,7 +40,7 @@ pub trait Player {
      * to play next frame. This will likely return before the last
      * sample of [`frame`] is played to allow for gapless playback
      */
-    fn play(frame: Frame);
+    fn play(&self, frame: Frame);
 }
 
 
