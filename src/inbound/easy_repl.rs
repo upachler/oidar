@@ -16,15 +16,23 @@ impl EasyReplFrontend {
 impl Frontend for EasyReplFrontend {
     fn run(&self, backend: impl Backend) {
         let backend = Rc::new(backend);
-        let backend_clone = backend.clone();
+        let backend_play = backend.clone();
+        let backend_stop = backend.clone();
         let mut repl = Repl::builder()
         .add("play", command! {
             "play URL",
             (url: String) => |url: String| {
                 match Url::parse(&url) {
-                    Ok(url) => backend_clone.send_command(BackendCommand::PlayUrl(url)).unwrap(),
+                    Ok(url) => backend_play.send_command(BackendCommand::PlayUrl(url)).unwrap(),
                     Err(e) => eprint!("invalid url '{url}' provided, error: {e}"),
                 };
+                Ok(CommandStatus::Done)
+            }
+        })
+        .add("stop", command!{
+            "stop playback",
+            () => || {
+                backend_stop.send_command(BackendCommand::StopPlayback).unwrap();
                 Ok(CommandStatus::Done)
             }
         })

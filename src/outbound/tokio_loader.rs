@@ -48,19 +48,18 @@ impl Loader for TokioReqwestLoader {
             // wait for a new Url to be set and receive a response
             // from which we can read chunks
             let new_url_set = inner.url.has_changed()?;
-            if inner.response.is_none() && !new_url_set{
-                log::trace!("no stream connection, no data to load");
-                return Ok(None);
-            }
-
             if new_url_set {
                 let url = inner.url.borrow_and_update().clone();
                 if let Some(url) = url {
                     inner.response = Some(reqwest::get(url).await?);
                 } else {
-                    log::trace!("no stream connection, set_url() called, but no url not set");
-                    return Ok(None)
+                    inner.response = None;
                 }
+            }
+
+            if inner.response.is_none() && !new_url_set{
+                log::trace!("no stream connection, no data to load");
+                return Ok(None);
             }
 
             // read next chunk of data

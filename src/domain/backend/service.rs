@@ -65,9 +65,7 @@ where
             if let Some(cmd) = cmd {
                 match cmd {
                     LoaderCmd::SetUrl(url) => loader.set_url(Some(url)),
-                    LoaderCmd::Stop => {
-                        continue;
-                    }
+                    LoaderCmd::Stop => loader.set_url(None),
                 }
             }
         }
