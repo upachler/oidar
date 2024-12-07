@@ -57,7 +57,7 @@ impl Loader for TokioReqwestLoader {
                 }
             }
 
-            if inner.response.is_none() && !new_url_set{
+            if inner.response.is_none() {
                 log::trace!("no stream connection, no data to load");
                 return Ok(None);
             }
