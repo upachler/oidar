@@ -1,23 +1,26 @@
+use bytes::Bytes;
+
 /** Chunk of encoded audio data, eg. MP3 */
+#[derive(Debug)]
 pub struct Chunk {
-    data: Vec<u8>
+    data: Bytes
 }
 
 impl Chunk {
-    pub fn data(&self) -> &[u8] {
-        todo!();
+    pub fn data(&self) -> &Bytes {
+        &self.data
     }
 
 }
 
-impl From<&[u8]> for Chunk {
-    fn from(value: &[u8]) -> Self {        
-        let data = Vec::from(value.clone());
-        Self {data}
+impl From<Bytes> for Chunk {
+    fn from(value: Bytes) -> Self {        
+        Self {data: value}
     }
 }
 
 /** a frame of PCM coded audio data, ready for playback on PCM audio device */
+#[derive(Debug)]
 pub struct Frame {
 }
 

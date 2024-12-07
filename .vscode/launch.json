@@ -1,0 +1,49 @@
+{
+    // Verwendet IntelliSense zum Ermitteln möglicher Attribute.
+    // Zeigen Sie auf vorhandene Attribute, um die zugehörigen Beschreibungen anzuzeigen.
+    // Weitere Informationen finden Sie unter https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'oidar'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=oidar",
+                    "--package=oidar"
+                ],
+                "filter": {
+                    "name": "oidar",
+                    "kind": "bin"
+                }
+            },
+            "env": {
+                "RUST_LOG":"oidar=trace",
+                "RUST_BACKTRACE":"1"
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'oidar'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=oidar",
+                    "--package=oidar"
+                ],
+                "filter": {
+                    "name": "oidar",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

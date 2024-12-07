@@ -11,12 +11,16 @@ mod outbound;
 
 fn main() {
 
-    println!("Hello, world!");
+    env_logger::builder()
+    .init();
+
+    log::info!("Hello, world!");
 
 
     let fm4_url = Url::parse("https://orf-live.ors-shoutcast.at/fm4-q2a").unwrap();
 
-    let loader = outbound::dummy::DummyLoader::new();
+    //let loader = outbound::dummy::DummyLoader::new();
+    let loader = outbound::tokio_loader::TokioReqwestLoader::new();
     let decoder = outbound::dummy::DummyDecoder::new();
     let player = outbound::dummy::DummyPlayer::new();
 

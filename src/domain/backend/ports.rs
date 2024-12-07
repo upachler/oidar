@@ -4,7 +4,7 @@ use std::sync::mpsc::Receiver;
 
 use crate::domain::backend::models::Chunk;
 
-
+#[derive(Debug)]
 pub enum BackendCommand {
     PlayUrl(Url),
     StopPlayback,
@@ -21,15 +21,15 @@ pub trait Backend {
     fn event_receiver(&self) -> &Receiver<BackendEvent>;
 }
 
-pub trait Loader {
+pub trait Loader : Send {
 
     // set the url where th load the stream from. If changed,
     // the next call to [read_chunk()] will load from that
     // new url, starting from the beginning.
-    fn set_url(&mut self, url: Url);
+    fn set_url(&mut self, url: Option<Url>);
 
     /** Reads a chunk and blocks until it is available */
-    fn read_chunk(&self) -> Result<Chunk>;
+    fn read_chunk(&self) -> Result<Option<Chunk>>;
 }
 
 use crate::domain::backend::models::Frame;

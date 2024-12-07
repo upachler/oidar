@@ -30,32 +30,45 @@ where
     std::thread::spawn(move ||{
         let mut running = true;
         loop {
-            let cmd = if running {
-                match loadercmd_receiver.try_recv() {
-                    Ok(cmd) => Some(cmd),
-                    Err(TryRecvError::Disconnected) => return,
-                    Err(TryRecvError::Empty) => None,
+            
+            let cmd;
+            match loader.read_chunk() {
+                Ok(Some(chunk)) => {
+                    log::trace!("chunk received: {chunk:?}");
+                    chunk_sender.send(chunk).unwrap();
+
+                    cmd = match loadercmd_receiver.try_recv() {
+                        Ok(cmd) => Some(cmd),
+                        Err(TryRecvError::Disconnected) => return,
+                        Err(TryRecvError::Empty) => None,
+                    }
+    
                 }
-            } else {
-                match loadercmd_receiver.recv() {
-                    Ok(cmd) => Some(cmd),
-                    Err(e)  => return,
+                Ok(None) => {
+                    log::trace!("loader has no active stream");
+
+                    cmd = match loadercmd_receiver.recv() {
+                        Ok(cmd) => Some(cmd),
+                        Err(e)  => {
+                            log::error!("error while receiving command: {e}");
+                            return
+                        },
+                    }
+    
                 }
-            };
+                Err(e) => {
+                    log::error!("read_chunk() returned error '{e}', terminating loader thread");
+                    break;
+                },
+            }
 
             if let Some(cmd) = cmd {
                 match cmd {
-                    LoaderCmd::SetUrl(url) => loader.set_url(url),
+                    LoaderCmd::SetUrl(url) => loader.set_url(Some(url)),
                     LoaderCmd::Stop => {
-                        running = false;
                         continue;
                     }
                 }
-            }
-            
-            match loader.read_chunk() {
-                Ok(chunk) => chunk_sender.send(chunk).unwrap(),
-                Err(_) => break,
             }
         }
     });
@@ -64,7 +77,7 @@ where
     std::thread::spawn(move ||{
         loop {
             match decoder.decode() {
-                DecoderState::NeedChunk => {
+                DecoderState::NeedChunk => {                    
                     let chunk = match chunk_receiver.recv(){
                         Ok(chunk) => chunk,
                         Err(_) => return,
@@ -119,11 +132,13 @@ fn exec_core_thread(command_receiver: Receiver<BackendCommand>, loadercmd_sender
 {
 
     loop {
+        log::debug!("waiting for command");
         let cmd = match command_receiver.recv() {
             Ok(cmd) => cmd,
             Err(_) => return,
         };
 
+        log::debug!("command received: {cmd:?}");
         match cmd {
             BackendCommand::PlayUrl(url) => loadercmd_sender.send(LoaderCmd::SetUrl(url)).unwrap(),
             BackendCommand::StopPlayback => loadercmd_sender.send(LoaderCmd::Stop).unwrap(),

@@ -5,5 +5,11 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.94"
+bytes = "1.9.0"
 easy-repl = "0.2.1"
+env_logger = "0.11.5"
+log = "0.4.22"
+reqwest = "0.12.9"
+tokio = { version = "1.42.0", features = ["rt", "net"] }
+
 url = "2.5.4"

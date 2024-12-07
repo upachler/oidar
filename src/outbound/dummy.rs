@@ -1,3 +1,5 @@
+use bytes::Bytes;
+
 use crate::domain::backend::ports::{Loader, Decoder, DecoderState, Player};
 use crate::domain::backend::models::*;
 
@@ -10,12 +12,12 @@ impl DummyLoader {
 }
 
 impl Loader for DummyLoader {
-    fn set_url(&mut self, url: url::Url) {
+    fn set_url(&mut self, url: Option<url::Url>) {
         // do nothing
     }
-    fn read_chunk(&self) -> anyhow::Result<Chunk> {
+    fn read_chunk(&self) -> anyhow::Result<Option<Chunk>> {
         let data = [0u8; 32];
-        Ok(Chunk::from(&data as &[u8]))
+        Ok(Some(Chunk::from(Bytes::from_owner(data))))
     }
 }
 
