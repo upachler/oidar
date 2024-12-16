@@ -22,6 +22,7 @@ pub trait Backend {
 }
 
 pub trait Loader : Send {
+    fn new() -> Self;
 
     // set the url where th load the stream from. If changed,
     // the next call to [read_chunk()] will load from that
@@ -32,33 +33,21 @@ pub trait Loader : Send {
     fn read_chunk(&self) -> Result<Option<Chunk>>;
 }
 
-use crate::domain::backend::models::Frame;
+use crate::domain::backend::models::Frames;
 
 pub trait Player {
+    fn new(input: Receiver<Frames>) -> Self; 
+
     /** 
-     * plays frame on playback hardware and blocks until ready 
+     * reads single frame, send to playback hardware and block until ready 
      * to play next frame. This will likely return before the last
      * sample of [`frame`] is played to allow for gapless playback
      */
-    fn play(&self, frame: Frame);
+    fn play(&mut self) -> Result<()>;
 }
 
-
-
-pub enum DecoderState {
-    /** 
-     * Stream is decoded until end of chunk, provide new chunk before calling
-     * [Decoder::decode()] again.
-     */
-    NeedChunk,
-    /**
-     * Decoded current chunk until the end of the frame was reached. Next
-     * call to [Decoder::decode()] will start a new frame.
-     */
-    FinishedFrame(Frame),
-}
 
 pub trait Decoder {
-    fn decode(&mut self) -> DecoderState;
-    fn push_chunk(&mut self, chunk: Chunk);
+    fn new(chunk_input: Receiver<Chunk>) -> Self;
+    fn decode(&mut self) -> Result<Frames>;
 }

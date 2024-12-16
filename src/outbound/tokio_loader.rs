@@ -1,16 +1,10 @@
 
-use std::cell::{Cell, RefCell};
-use std::io::BufReader;
+use std::cell::RefCell;
 
 use crate::domain::backend::ports::Loader;
 use crate::domain::backend::models::*;
 use anyhow::*;
-use bytes::Bytes;
-use reqwest::Request;
-use tokio::io::ReadBuf;
 use tokio::runtime::Runtime;
-use tokio::net::TcpStream;
-use tokio::task::LocalSet;
 use tokio::sync::watch::{Sender,Receiver};
 use url::Url;
 
@@ -24,8 +18,8 @@ pub struct TokioReqwestLoader{
     inner: RefCell<Inner>,
 }
 
-impl TokioReqwestLoader {
-    pub fn new() -> Self {
+impl Loader for TokioReqwestLoader {
+    fn new() -> Self {
         let rt = tokio::runtime::Builder::new_current_thread()
         .enable_io()
         .build().unwrap();
@@ -36,9 +30,7 @@ impl TokioReqwestLoader {
             inner: RefCell::new(Inner { url: rx, response: None }),
         }
     }
-}
 
-impl Loader for TokioReqwestLoader {
     fn read_chunk(&self) -> Result<Option<Chunk>> {
         log::trace!("read_chunk()");
         self.rt.block_on(async {

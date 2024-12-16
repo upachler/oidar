@@ -26,7 +26,35 @@ impl From<Bytes> for Chunk {
 
 /** a frame of PCM coded audio data, ready for playback on PCM audio device */
 #[derive(Debug)]
-pub struct Frame {
+pub struct Frames {
+    channels: usize,
+    data: Vec<f32>
 }
 
+impl Frames {
+
+    pub(crate) fn new(channels: usize, data: Vec<f32>) -> Self {
+        Self { channels, data }
+    }
+
+    pub fn new_empty() -> Self {
+        Self {
+            channels: 0,
+            data: vec![],
+        }
+    }
+
+    pub fn channels(&self) -> usize {
+        self.channels
+    }
+
+    pub fn num_frames(&self) -> usize {
+        self.data.len() / self.channels()
+    }
+    
+    pub fn data(&self) -> &[f32] {
+        &self.data
+    }
+
+}
 

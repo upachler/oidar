@@ -1,17 +1,20 @@
+use std::sync::mpsc::Receiver;
+
+use anyhow::Result;
 use bytes::Bytes;
 
-use crate::domain::backend::ports::{Loader, Decoder, DecoderState, Player};
+use crate::domain::backend::ports::{Loader, Decoder, Player};
 use crate::domain::backend::models::*;
 
 pub struct DummyLoader;
 
-impl DummyLoader {
-    pub fn new() -> Self{
-        Self
-    }
-}
 
 impl Loader for DummyLoader {
+
+    fn new() -> Self {
+        Self {}
+    }
+
     fn set_url(&mut self, url: Option<url::Url>) {
         // do nothing
     }
@@ -24,45 +27,51 @@ impl Loader for DummyLoader {
 
 pub struct DummyDecoder {
     chunk: Option<Chunk>,
+    input: Receiver<Chunk>,
 }
 
 impl DummyDecoder {
-    pub fn new() -> Self {
-        Self {
-            chunk: None
-        }
-    }
 }
 
 impl Decoder for DummyDecoder {
-    fn decode(&mut self) -> DecoderState {
-        // for each chunk we produce a sample
-        match self.chunk {
-            Some(_) => {
-                self.chunk = None;
-                let frame = Frame{};
-                DecoderState::FinishedFrame(frame)
-            }
-            None => {
-                DecoderState::NeedChunk
-            }
+
+    fn new(chunk_input: std::sync::mpsc::Receiver<Chunk>) -> Self {
+        Self {
+            chunk: None,
+            input: chunk_input,
         }
     }
 
-    fn push_chunk(&mut self, chunk: Chunk) {
-        self.chunk = Some(chunk)    
+    fn decode(&mut self) -> Result<Frames> {
+
+        if self.chunk.is_none() {
+            self.chunk = Some(self.input.recv()?);
+        }
+
+        // consume the chunk once all data is read
+        self.chunk.take();
+
+        // for each chunk we produce a frame
+        Ok(Frames::new_empty())
     }
+
 }
 
-pub struct DummyPlayer;
+pub struct DummyPlayer{
+    input: Receiver<Frames>,
+}
 
 impl DummyPlayer {
-    pub fn new() -> Self {
-        Self
-    }
 }
 
 impl Player for DummyPlayer {
-    fn play(&self, _frame: Frame) {        
+    fn new(input: Receiver<Frames>) -> Self {
+        Self {
+            input
+        }
+    }
+    fn play(&mut self) -> Result<()> {    
+        self.input.recv()?;
+        Ok(())
     }
 }

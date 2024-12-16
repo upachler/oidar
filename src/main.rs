@@ -1,4 +1,8 @@
 
+use outbound::dummy::{DummyDecoder, DummyPlayer};
+use outbound::cpal_player::CpalPlayer;
+use outbound::tokio_loader::TokioReqwestLoader;
+use core::symphonia_decoder::SymphoniaDecoder;
 use url::Url;
 use domain::backend::ports::*;
 use domain::frontend::ports::*;
@@ -7,7 +11,7 @@ mod domain;
 mod inbound;
 mod outbound;
 
-
+mod core;
 
 fn main() {
 
@@ -19,12 +23,7 @@ fn main() {
 
     let fm4_url = Url::parse("https://orf-live.ors-shoutcast.at/fm4-q2a").unwrap();
 
-    //let loader = outbound::dummy::DummyLoader::new();
-    let loader = outbound::tokio_loader::TokioReqwestLoader::new();
-    let decoder = outbound::dummy::DummyDecoder::new();
-    let player = outbound::dummy::DummyPlayer::new();
-
-    let backend = domain::backend::service::new(loader, decoder, player);
+    let backend = domain::backend::service::new::<TokioReqwestLoader, SymphoniaDecoder, CpalPlayer>();
 
     backend.send_command(BackendCommand::PlayUrl(fm4_url)).unwrap();
     

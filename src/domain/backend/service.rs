@@ -16,11 +16,11 @@ enum LoaderCmd {
     Stop,
 }
 
-pub fn new<L,D,P>(mut loader: L, mut decoder: D, player: P) -> impl Backend 
+pub fn new<L,D,P>() -> impl Backend 
 where 
-    L: Loader + Send + 'static,
-    D: Decoder + Send + 'static,
-    P: Player + Send + 'static,
+    L: Loader,
+    D: Decoder,
+    P: Player,
 {
     let (command_sender, command_receiver) = sync_channel(10);
     let (event_sender, event_receiver) = sync_channel(10);
@@ -28,7 +28,7 @@ where
 
     let (chunk_sender, chunk_receiver) = sync_channel(2);
     std::thread::spawn(move ||{
-        let mut running = true;
+        let mut loader = L::new();
         loop {
             
             let cmd;
@@ -73,25 +73,20 @@ where
 
     let (frame_sender, frame_receiver) = sync_channel(2);
     std::thread::spawn(move ||{
+        let mut decoder = D::new(chunk_receiver);
         loop {
             match decoder.decode() {
-                DecoderState::NeedChunk => {                    
-                    let chunk = match chunk_receiver.recv(){
-                        Ok(chunk) => chunk,
-                        Err(_) => return,
-                    };
-                    decoder.push_chunk(chunk);
-                }
-                DecoderState::FinishedFrame(frame) => frame_sender.send(frame).unwrap(),
+                Ok(frame) => frame_sender.send(frame).unwrap(),
+                Err(_) => return,
             }
         }
     });
 
     std::thread::spawn(move ||{
+        let mut player = P::new(frame_receiver);
         loop {
-            match frame_receiver.recv() {
-                Ok(frame) => player.play(frame),
-                Err(_) => return
+            if let Err(e) = player.play() {
+                log::error!("error while playing frame: {e}")
             }
         }
     });
@@ -118,12 +113,6 @@ impl Backend for BackendCoreStub {
     fn send_command(&self, cmd: BackendCommand) -> Result<()> {
         Ok(self.command_sender.send(cmd)?)
     }
-}
-
-struct BackendCore
-{
-    command_receiver: Receiver<BackendCommand>,
-    event_sender: SyncSender<BackendEvent>,
 }
 
 fn exec_core_thread(command_receiver: Receiver<BackendCommand>, loadercmd_sender: SyncSender<LoaderCmd>) 
