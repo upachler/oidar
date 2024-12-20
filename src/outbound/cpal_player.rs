@@ -55,13 +55,7 @@ impl Player for CpalPlayer {
                 // * or mix all source channels to a mono signal, and write that mono signal to
                 //   all target channels
                 if data_channels == f.channels() {
-
                     target.copy_from_slice(source);
-/*                  let mut source = source.iter();
-                    target.fill_with(||{
-                        *source.next().unwrap()
-                    });
-*/
                 } else {
                     let mut source = source.chunks(f.channels());
                     let source_channels = f.channels() as f32;

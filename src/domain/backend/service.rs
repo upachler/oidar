@@ -1,5 +1,5 @@
 use super::ports::*;
-use std::{sync::mpsc::*, thread::JoinHandle};
+use std::{sync::mpsc::*, thread::JoinHandle, time::Duration};
 use anyhow::Result;
 use url::Url;
 
@@ -85,9 +85,18 @@ where
     std::thread::spawn(move ||{
         let mut player = P::new(frame_receiver);
         loop {
+            const INTERVAL: Duration = Duration::from_millis(100);
+            let start = std::time::Instant::now();
             if let Err(e) = player.play() {
                 log::error!("error while playing frame: {e}")
             }
+            // FIXME: We're currently using cpal for implementing the player,
+            // which rolls it's own playback thread. Therefore, Player::play()
+            // returns immediately (non-blocking), and calling it repeatedly
+            // in  a loop sucks up lots of performance. So we call it in
+            // 100ms intervals (which is not a long term solution)
+            let naptime = INTERVAL - (std::time::Instant::now().duration_since(start));
+            std::thread::sleep(naptime);
         }
     });
 
