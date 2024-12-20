@@ -1,11 +1,11 @@
 use std::sync::mpsc::Receiver;
 
-use cpal::{traits::{DeviceTrait, HostTrait, StreamTrait}, Stream, StreamConfig, SupportedStreamConfig};
-use symphonia::core::conv::IntoSample;
+use cpal::{traits::{DeviceTrait, HostTrait, StreamTrait}, Stream, StreamConfig};
 
-use crate::{domain::backend::models::Frames, Player};
+use crate::domain::backend::models::Frames;
+use crate::domain::backend::ports::Player;
 
-pub(crate) struct CpalPlayer {
+pub struct CpalPlayer {
     config: Box<StreamConfig>,
     stream: Stream,
 }

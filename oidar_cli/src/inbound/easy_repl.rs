@@ -1,8 +1,9 @@
 use easy_repl::{command, Repl, CommandStatus};
+use oidar_base::domain::backend::ports::Backend;
 use std::rc::Rc;
-use crate::domain::backend::ports::*;
+use oidar_base::domain::backend::ports::*;
 use url::Url;
-use crate::domain::frontend::ports::Frontend;
+use oidar_base::domain::frontend::ports::Frontend;
 
 pub struct EasyReplFrontend {
 }
